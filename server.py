@@ -87,7 +87,7 @@ def _build_argparser() -> argparse.ArgumentParser:
     return parser
 
 
-def _try_register(mcp, target: str) -> None:  # noqa: ANN001
+def _try_register(mcp, target: str) -> None:
     """Import ``target.register`` and call it. Log and skip on failure."""
     try:
         module = __import__(target, fromlist=["register"])
@@ -105,7 +105,7 @@ def _try_register(mcp, target: str) -> None:  # noqa: ANN001
         log.exception("registration failed for %s: %s", target, exc)
 
 
-def _try_plugin_loader(mcp) -> None:  # noqa: ANN001
+def _try_plugin_loader(mcp) -> None:
     try:
         module = __import__("plugins.loader", fromlist=["load_all"])
     except ImportError as exc:
@@ -122,7 +122,7 @@ def _try_plugin_loader(mcp) -> None:  # noqa: ANN001
         log.exception("plugin loading failed: %s", exc)
 
 
-def create_server():  # noqa: ANN201 -- FastMCP type lives in mcp[cli]
+def create_server():
     """Construct and populate the FastMCP server instance."""
     try:
         from mcp.server.fastmcp import FastMCP
@@ -165,7 +165,7 @@ def _install_signal_handlers() -> None:
     is the rough Ctrl-Break equivalent on Windows console apps.
     """
 
-    def _raise_interrupt(signum: int, _frame: Any) -> None:  # noqa: ANN401
+    def _raise_interrupt(signum: int, _frame: Any) -> None:
         log.info("received signal %s; shutting down nexcpp...", signum)
         raise KeyboardInterrupt
 
@@ -209,7 +209,7 @@ def main(argv: list[str] | None = None) -> int:
 
     try:
         mcp = create_server()
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         log.exception("failed to create MCP server: %s", exc)
         return 1
 
@@ -233,7 +233,7 @@ def main(argv: list[str] | None = None) -> int:
         # uvicorn calls sys.exit on SIGINT; propagate the code.
         log.info("shutting down nexcpp (exit %s)...", exc.code)
         return int(exc.code) if isinstance(exc.code, int) else 0
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         log.exception("nexcpp terminated with unhandled exception: %s", exc)
         return 1
     return 0

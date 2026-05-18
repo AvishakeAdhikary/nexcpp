@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextlib
 import logging
 import shutil
 import subprocess
@@ -76,7 +77,7 @@ def _run_static_analysis_merge(project_dir: Path) -> list[dict[str, Any]]:
     return parse_compile_errors(proc.stdout + "\n" + proc.stderr)
 
 
-def register(mcp: Any) -> None:  # noqa: ANN401
+def register(mcp: Any) -> None:
     @mcp.tool()
     def build_project(
         project_dir: str = Field(".", description="Path to project root."),
@@ -105,10 +106,7 @@ def register(mcp: Any) -> None:  # noqa: ANN401
         cfg = get_config()
         effective_sandbox = sandbox or cfg.sandbox_default
         proj = Path(project_dir).expanduser()
-        if not proj.is_absolute():
-            proj = (Path.cwd() / proj).resolve()
-        else:
-            proj = proj.resolve()
+        proj = (Path.cwd() / proj).resolve() if not proj.is_absolute() else proj.resolve()
 
         if effective_sandbox:
             try:
@@ -134,13 +132,11 @@ def register(mcp: Any) -> None:  # noqa: ANN401
             )
             # Persist a log so the resource can serve it.
             log_id = uuid.uuid4().hex
-            try:
+            with contextlib.suppress(OSError):
                 (_log_dir() / f"build-{log_id}.log").write_text(
                     (result.get("stdout") or "") + (result.get("stderr") or ""),
                     encoding="utf-8",
                 )
-            except OSError:
-                pass
             return {
                 "ok": result.get("ok", False),
                 "build_system": "cmake",

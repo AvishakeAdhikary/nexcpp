@@ -247,7 +247,7 @@ def _write_report(log_id: str, payload: dict[str, Any]) -> None:
         log.warning("failed to write analysis report %s: %s", path, exc)
 
 
-def register(mcp: Any) -> None:  # noqa: ANN401
+def register(mcp: Any) -> None:
     @mcp.tool()
     def analyze_code(
         path: str = Field(..., description="File or directory to analyze."),
@@ -268,10 +268,7 @@ def register(mcp: Any) -> None:  # noqa: ANN401
         ``suggested_fix`` (clang-tidy YAML replacements).
         """
         target = Path(path).expanduser()
-        if not target.is_absolute():
-            target = (Path.cwd() / target).resolve()
-        else:
-            target = target.resolve()
+        target = (Path.cwd() / target).resolve() if not target.is_absolute() else target.resolve()
 
         if not target.exists():
             return {"ok": False, "diagnostics": [], "summary": "", "error": f"path not found: {target}"}

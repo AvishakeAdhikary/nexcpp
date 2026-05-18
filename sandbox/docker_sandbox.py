@@ -7,6 +7,7 @@ available.
 
 from __future__ import annotations
 
+import contextlib
 import logging
 import shlex
 import tempfile
@@ -25,7 +26,7 @@ _CPU_PERIOD = 100_000
 _CPU_QUOTA = 200_000  # 2 CPUs
 
 
-def _docker_client():  # noqa: ANN202
+def _docker_client():
     try:
         import docker  # type: ignore[import-not-found]
     except ImportError as exc:  # pragma: no cover - docker SDK absent
@@ -42,7 +43,7 @@ def _docker_client():  # noqa: ANN202
         ) from exc
 
 
-def _image_exists(client: Any, image: str) -> bool:  # noqa: ANN401
+def _image_exists(client: Any, image: str) -> bool:
     try:
         client.images.get(image)
         return True
@@ -59,7 +60,7 @@ def _missing_image_message(image: str) -> str:
 
 
 def _run_container(
-    client: Any,  # noqa: ANN401
+    client: Any,
     *,
     image: str,
     command: list[str] | str,
@@ -107,7 +108,7 @@ def _run_container(
                 sock = container.attach_socket(
                     params={"stdin": 1, "stream": 1, "stdout": 0, "stderr": 0}
                 )
-                sock._sock.sendall(stdin_payload.encode("utf-8"))  # noqa: SLF001
+                sock._sock.sendall(stdin_payload.encode("utf-8"))
                 sock.close()
             except Exception:
                 pass
@@ -116,10 +117,8 @@ def _run_container(
             result = container.wait(timeout=timeout)
             exit_code = int(result.get("StatusCode", 1))
         except Exception as exc:
-            try:
+            with contextlib.suppress(Exception):
                 container.kill()
-            except Exception:
-                pass
             return {
                 "ok": False,
                 "stdout": "",
@@ -134,10 +133,8 @@ def _run_container(
         except Exception:
             pass
     finally:
-        try:
+        with contextlib.suppress(Exception):
             container.remove(force=True)
-        except Exception:
-            pass
 
     elapsed_ms = int((time.perf_counter() - started) * 1000)
     return {

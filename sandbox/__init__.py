@@ -8,13 +8,13 @@ from sandbox.quick import compile_and_run
 
 __all__ = [
     "compile_and_run",
-    "run_local_build",
     "run_build",
+    "run_local_build",
     "run_snippet",
 ]
 
 
-def __getattr__(name: str):  # noqa: ANN201
+def __getattr__(name: str):
     if name == "run_local_build":
         from sandbox.pipeline import run_local_build
 

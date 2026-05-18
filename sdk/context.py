@@ -20,8 +20,9 @@ clashing on the MCP wire.
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:  # pragma: no cover
     from mcp.server.fastmcp import FastMCP
@@ -47,7 +48,7 @@ class PluginContext:
 
     def __init__(
         self,
-        mcp: "FastMCP",
+        mcp: FastMCP,
         scope: Scope,
         plugin_name: str,
         plugin_dir: Path,

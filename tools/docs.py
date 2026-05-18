@@ -28,7 +28,7 @@ def _entry_to_dict(entry: Any) -> dict[str, Any]:
     }
 
 
-def register(mcp: Any) -> None:  # noqa: ANN401 -- FastMCP type lives in mcp[cli]
+def register(mcp: Any) -> None:
     """Attach the ``search_cpp_docs`` tool to the given FastMCP server."""
 
     @mcp.tool()

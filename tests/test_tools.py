@@ -8,14 +8,11 @@ skipped via pytest.importorskip.
 from __future__ import annotations
 
 import asyncio
-import json
 import os
 from pathlib import Path
 from typing import Any
-from unittest.mock import MagicMock, patch
 
 import pytest
-
 
 # ----------------------------------------------------------- helpers
 

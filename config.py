@@ -9,15 +9,10 @@ resources, and the plugin loader.
 from __future__ import annotations
 
 import os
-import sys
+import tomllib
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:  # pragma: no cover - py<3.11 fallback
-    import tomli as tomllib  # type: ignore[no-redef]
 
 from pydantic import BaseModel, Field
 

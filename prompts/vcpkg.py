@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 _TEMPLATE = """\
 You are authoring a new vcpkg port.
 
@@ -49,7 +48,7 @@ rejected.
 """
 
 
-def register(mcp: Any) -> None:  # noqa: ANN401
+def register(mcp: Any) -> None:
     @mcp.prompt(
         description="Guide authoring a vcpkg port for a C++ library."
     )

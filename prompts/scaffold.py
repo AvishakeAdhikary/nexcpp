@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 _TEMPLATE = """\
 You are scaffolding a brand-new C++ library with nexcpp tools.
 
@@ -61,7 +60,7 @@ Tone: concise, decisive. Report each tool result before moving on.
 """
 
 
-def register(mcp: Any) -> None:  # noqa: ANN401
+def register(mcp: Any) -> None:
     @mcp.prompt(
         description="Guide creating a complete C++ library from scratch."
     )

@@ -13,7 +13,7 @@ from doc_index.index import DocEntry
 
 from . import boost, cmake, conan, llvm, qt, std, vcpkg
 
-__all__ = ["load_all", "boost", "cmake", "conan", "llvm", "qt", "std", "vcpkg"]
+__all__ = ["boost", "cmake", "conan", "llvm", "load_all", "qt", "std", "vcpkg"]
 
 
 def load_all() -> list[DocEntry]:

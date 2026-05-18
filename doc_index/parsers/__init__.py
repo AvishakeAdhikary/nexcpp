@@ -2,4 +2,4 @@
 
 from . import cmake_docs, cppreference, vcpkg_catalog
 
-__all__ = ["cppreference", "cmake_docs", "vcpkg_catalog"]
+__all__ = ["cmake_docs", "cppreference", "vcpkg_catalog"]

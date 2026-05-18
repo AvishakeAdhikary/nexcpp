@@ -61,7 +61,7 @@ def _lookup(symbol: str, source: str) -> str:
     return _format_entry(results[0])
 
 
-def register(mcp: Any) -> None:  # noqa: ANN401
+def register(mcp: Any) -> None:
     @mcp.resource("nexcpp://docs/std/{symbol}")
     def std_symbol(symbol: str) -> str:
         """C++ standard library reference for ``symbol``."""

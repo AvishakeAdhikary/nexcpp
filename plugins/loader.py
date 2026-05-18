@@ -36,7 +36,7 @@ from sdk import PluginContext
 from sdk.context import Scope
 
 if TYPE_CHECKING:  # pragma: no cover
-    from mcp.server.fastmcp import FastMCP
+    pass
 
 log = logging.getLogger(__name__)
 
@@ -72,9 +72,7 @@ def _iter_plugin_paths(directory: Path) -> list[Path]:
     for entry in entries:
         if entry.name.startswith((".", "_")):
             continue
-        if entry.is_file() and entry.suffix == ".py":
-            out.append(entry)
-        elif entry.is_dir() and (entry / "__init__.py").is_file():
+        if (entry.is_file() and entry.suffix == ".py") or (entry.is_dir() and (entry / "__init__.py").is_file()):
             out.append(entry)
     return out
 
@@ -223,7 +221,7 @@ def load_all(mcp: Any) -> dict[str, Any]:
                 )
                 loaded.append({"name": name, "scope": scope, "path": str(path)})
                 seen.add(name)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 errors.append(
                     {
                         "name": name,

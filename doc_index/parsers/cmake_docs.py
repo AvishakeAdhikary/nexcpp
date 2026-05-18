@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 _BASE_URL = "https://cmake.org/cmake/help/latest/command/"
 
 
-def _load_bs4() -> "type":  # pragma: no cover - import-time path
+def _load_bs4() -> type:  # pragma: no cover - import-time path
     try:
         from bs4 import BeautifulSoup  # type: ignore[import-not-found]
     except ImportError as exc:

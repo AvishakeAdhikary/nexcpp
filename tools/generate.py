@@ -204,7 +204,7 @@ def _generate_package_impl(
 
     try:
         created = _render_tree(template_dir, out_root, ctx)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         log.exception("template rendering failed")
         return {"ok": False, "error": f"render failed: {exc}"}
 
@@ -310,7 +310,7 @@ def _parse_header_libclang(path: Path) -> dict[str, list[dict[str, Any]]] | None
             args=["-x", "c++", "-std=c++20"],
             options=cindex.TranslationUnit.PARSE_SKIP_FUNCTION_BODIES,
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         log.debug("libclang parse failed: %s", exc)
         return None
 
@@ -351,7 +351,7 @@ def _parse_header(path: Path) -> dict[str, list[dict[str, Any]]]:
     text = path.read_text(encoding="utf-8", errors="replace")
     try:
         clang_result = _parse_header_libclang(path)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         log.debug("libclang unavailable: %s", exc)
         clang_result = None
     if clang_result and (clang_result["functions"] or clang_result["classes"]):
@@ -418,7 +418,7 @@ def _generate_bridge_impl(
 
     try:
         parsed = _parse_header(header_path)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         log.exception("header parsing failed")
         return {"ok": False, "error": f"header parse failed: {exc}"}
 
@@ -455,7 +455,7 @@ def _generate_bridge_impl(
 
     try:
         created = _render_tree(template_dir, out_root, ctx)
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         log.exception("bridge rendering failed")
         return {"ok": False, "error": f"render failed: {exc}"}
 
@@ -490,7 +490,7 @@ def _generate_bridge_impl(
 # ---- registration ----------------------------------------------------------
 
 
-def register(mcp: Any) -> None:  # noqa: ANN401
+def register(mcp: Any) -> None:
     @mcp.tool()
     def generate_package(
         name: str = Field(..., description="snake_case package name."),

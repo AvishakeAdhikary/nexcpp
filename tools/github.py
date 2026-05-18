@@ -31,7 +31,7 @@ def _build_client() -> tuple[Any | None, str | None]:
         from config import get_config
 
         token = get_config().github_token
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         return None, f"config load failed: {exc}"
 
     try:
@@ -42,7 +42,7 @@ def _build_client() -> tuple[Any | None, str | None]:
     return GhClient(token=token), None
 
 
-def register(mcp: Any) -> None:  # noqa: ANN401
+def register(mcp: Any) -> None:
     @mcp.tool()
     def github_op(
         op: Op = Field(..., description="GitHub operation to perform."),
@@ -101,7 +101,7 @@ def register(mcp: Any) -> None:  # noqa: ANN401
                 return {"ok": False, "error": f"workflow_gen unavailable: {exc}"}
             try:
                 yaml_text = render(workflow_template, **(workflow_kwargs or {}))
-            except (ValueError, Exception) as exc:  # noqa: BLE001
+            except (ValueError, Exception) as exc:
                 log.exception("workflow render failed")
                 return {"ok": False, "error": f"render failed: {exc}"}
             return {

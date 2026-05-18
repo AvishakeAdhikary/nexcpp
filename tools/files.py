@@ -245,7 +245,7 @@ def _op_list(path: Path) -> dict[str, Any]:
 # ----------------------------------------------------------- register
 
 
-def register(mcp: Any) -> None:  # noqa: ANN401
+def register(mcp: Any) -> None:
     @mcp.tool()
     def manage_file(
         op: Op = Field(..., description="Operation to perform."),

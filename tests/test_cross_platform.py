@@ -8,8 +8,8 @@ suite is green on whatever platform the developer runs.
 
 from __future__ import annotations
 
-import asyncio
 import ast
+import asyncio
 import os
 import pickle
 import platform
@@ -21,7 +21,6 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-
 
 # ---------------------------------------------------------------- helpers
 
@@ -358,10 +357,10 @@ def test_server_responds_to_sigint_gracefully() -> None:
         else:
             os.kill(proc.pid, signal.SIGINT)
         try:
-            stdout, stderr = proc.communicate(timeout=10)
+            _, stderr = proc.communicate(timeout=10)
         except subprocess.TimeoutExpired:
             proc.kill()
-            stdout, stderr = proc.communicate(timeout=5)
+            _, stderr = proc.communicate(timeout=5)
             pytest.fail("server did not exit within 10s of SIGINT")
         assert proc.returncode == 0, f"exit={proc.returncode} stderr={stderr!r}"
         assert "shutting down" in (stderr or "").lower(), f"stderr={stderr!r}"

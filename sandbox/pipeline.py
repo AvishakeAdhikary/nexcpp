@@ -39,7 +39,7 @@ def detect_build_system(project_dir: Path) -> str | None:
 def _stream_run(
     argv: list[str],
     cwd: Path,
-    log_fh: Any,  # noqa: ANN401
+    log_fh: Any,
     timeout: int | None = None,
 ) -> tuple[int, str]:
     """Run ``argv`` and capture combined stdout+stderr to log_fh and memory."""
@@ -47,7 +47,7 @@ def _stream_run(
     log_fh.flush()
     buf: list[str] = []
     try:
-        proc = subprocess.Popen(  # noqa: S603
+        proc = subprocess.Popen(
             argv,
             cwd=str(cwd),
             stdout=subprocess.PIPE,
@@ -116,7 +116,7 @@ def _discover_artifacts(project_dir: Path) -> list[str]:
     return deduped
 
 
-def _run_clang_tidy(project_dir: Path, log_fh: Any) -> str:  # noqa: ANN401
+def _run_clang_tidy(project_dir: Path, log_fh: Any) -> str:
     tidy = shutil.which("clang-tidy")
     if not tidy:
         log_fh.write("\n[clang-tidy not found in PATH; skipping static analysis]\n")

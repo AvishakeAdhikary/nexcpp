@@ -8,7 +8,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 _PYBIND11 = """\
 Generate Python bindings for a C++ header via pybind11.
 
@@ -172,7 +171,7 @@ Report each result. Stop on the first failing step.
 """
 
 
-def register(mcp: Any) -> None:  # noqa: ANN401
+def register(mcp: Any) -> None:
     @mcp.prompt(description="Guide creating pybind11 Python bindings for a C++ header.")
     def pybind11_binding(header_file: str, module_name: str) -> str:
         return _PYBIND11.format(header_file=header_file, module_name=module_name)

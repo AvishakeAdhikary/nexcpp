@@ -43,7 +43,7 @@ def _read_or_message(path: Path | None, kind: str) -> str:
         return f"# {kind}\n\n*Failed to read {path}: {exc}*\n"
 
 
-def register(mcp: Any) -> None:  # noqa: ANN401
+def register(mcp: Any) -> None:
     @mcp.resource("nexcpp://build/log/latest")
     def build_log_latest() -> str:
         """Most recent local build log."""

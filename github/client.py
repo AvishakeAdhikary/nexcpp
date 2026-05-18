@@ -86,10 +86,10 @@ class GhClient:
             return {"ok": False, "error": "NEXCPP_GITHUB_TOKEN not set"}
         return None
 
-    def _safe(self, fn, *args, **kwargs) -> dict[str, Any]:  # noqa: ANN001
+    def _safe(self, fn, *args, **kwargs) -> dict[str, Any]:
         try:
             return fn(*args, **kwargs)
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             pyg = _load_pygithub()
             if pyg is not None and isinstance(exc, pyg["GithubException"]):
                 msg = f"{exc.status}: {exc.data}"
@@ -380,7 +380,7 @@ class GhClient:
             try:
                 upstream = gh.get_repo("microsoft/vcpkg")
                 fork = user.create_fork(upstream)
-            except Exception as exc:  # noqa: BLE001
+            except Exception as exc:
                 return {"ok": False, "error": f"fork failed: {exc}"}
 
             # Clone fork to temp dir, copy port files, commit, push, open PR

@@ -55,10 +55,7 @@ def _parse(text: str) -> list[dict[str, Any]]:
 
 def _resolve_target(file: str) -> Path | None:
     path = Path(file).expanduser()
-    if not path.is_absolute():
-        path = (Path.cwd() / path).resolve()
-    else:
-        path = path.resolve()
+    path = (Path.cwd() / path).resolve() if not path.is_absolute() else path.resolve()
     return path if path.is_file() else None
 
 

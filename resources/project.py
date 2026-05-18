@@ -17,7 +17,6 @@ from typing import Any
 
 from config import get_config
 
-
 _IGNORE_DIRS = {
     ".git",
     "__pycache__",
@@ -51,10 +50,7 @@ def _load_gitignore(root: Path) -> list[re.Pattern[str]]:
 
 
 def _is_ignored(rel: str, patterns: list[re.Pattern[str]]) -> bool:
-    for pat in patterns:
-        if pat.search(rel):
-            return True
-    return False
+    return any(pat.search(rel) for pat in patterns)
 
 
 def _walk_tree(root: Path, max_depth: int = 5) -> dict[str, Any]:
@@ -200,7 +196,7 @@ def _config_as_toml() -> str:
     return "\n".join(lines) + "\n"
 
 
-def register(mcp: Any) -> None:  # noqa: ANN401
+def register(mcp: Any) -> None:
     @mcp.resource("nexcpp://project/files")
     def project_files() -> str:
         """JSON tree of the current project directory."""

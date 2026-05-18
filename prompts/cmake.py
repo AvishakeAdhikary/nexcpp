@@ -4,7 +4,6 @@ from __future__ import annotations
 
 from typing import Any
 
-
 _TEMPLATE = """\
 A CMake invocation failed. Diagnose and fix it.
 
@@ -47,7 +46,7 @@ Be terse. One sentence per step. Show the diff before applying it.
 """
 
 
-def register(mcp: Any) -> None:  # noqa: ANN401
+def register(mcp: Any) -> None:
     @mcp.prompt(
         description="Diagnose and fix a CMake configure/build error."
     )
