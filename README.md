@@ -16,7 +16,7 @@ JSON-RPC over stdio (or SSE for team deployments).
 Requires Python 3.11+.
 
 ```bash
-git clone https://github.com/<you>/nexcpp.git
+git clone https://github.com/AvishakeAdhikary/nexcpp.git
 cd nexcpp
 uv sync             # or: pip install -e ".[dev]"
 nexcpp-fetch all    # populate the offline docs index
