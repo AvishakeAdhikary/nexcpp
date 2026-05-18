@@ -1,0 +1,21 @@
+#include <napi.h>
+
+#include "{{ header_basename }}"
+
+{% for fn in functions %}
+Napi::Value {{ fn.name }}_wrapped(const Napi::CallbackInfo& info) {
+    Napi::Env env = info.Env();
+    {{ fn.name }}();
+    return env.Undefined();
+}
+{% endfor %}
+
+Napi::Object Init(Napi::Env env, Napi::Object exports) {
+{% for fn in functions %}
+    exports.Set(Napi::String::New(env, "{{ fn.name }}"),
+                Napi::Function::New(env, {{ fn.name }}_wrapped));
+{% endfor %}
+    return exports;
+}
+
+NODE_API_MODULE({{ module_name }}, Init)

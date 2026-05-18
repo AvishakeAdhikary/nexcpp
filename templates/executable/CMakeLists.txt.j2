@@ -1,0 +1,45 @@
+cmake_minimum_required(VERSION 3.20)
+
+project({{ name }}
+    VERSION 0.1.0
+    DESCRIPTION "{{ description }}"
+    LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD {{ cpp_std }})
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
+endif()
+
+include(GNUInstallDirs)
+
+{% for dep in dependencies %}
+find_package({{ dep }} CONFIG QUIET)
+{% endfor %}
+
+add_executable({{ name }} src/main.cpp)
+target_compile_features({{ name }} PRIVATE cxx_std_{{ cpp_std }})
+
+{% for dep in dependencies %}
+if(TARGET {{ dep }}::{{ dep }})
+    target_link_libraries({{ name }} PRIVATE {{ dep }}::{{ dep }})
+endif()
+{% endfor %}
+
+if(MSVC)
+    target_compile_options({{ name }} PRIVATE /W4 /permissive-)
+else()
+    target_compile_options({{ name }} PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
+install(TARGETS {{ name }} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+{% if test_framework != 'none' %}
+option({{ name | upper }}_BUILD_TESTS "Build {{ name }} tests" ON)
+if({{ name | upper }}_BUILD_TESTS AND PROJECT_IS_TOP_LEVEL)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+{% endif %}

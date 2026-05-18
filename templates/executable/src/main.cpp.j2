@@ -1,0 +1,32 @@
+#include <iostream>
+#include <string>
+#include <string_view>
+
+namespace {
+
+constexpr std::string_view kVersion = "0.1.0";
+
+void print_help(std::string_view argv0) {
+    std::cout << argv0 << " " << kVersion << "\n";
+    std::cout << "{{ description }}\n";
+    std::cout << "Usage: " << argv0 << " [--help|--version]\n";
+}
+
+}  // namespace
+
+int main(int argc, char** argv) {
+    const std::string_view program = argc > 0 ? argv[0] : "{{ name }}";
+    for (int i = 1; i < argc; ++i) {
+        const std::string_view arg{argv[i]};
+        if (arg == "--help" || arg == "-h") {
+            print_help(program);
+            return 0;
+        }
+        if (arg == "--version" || arg == "-v") {
+            std::cout << kVersion << "\n";
+            return 0;
+        }
+    }
+    print_help(program);
+    return 0;
+}

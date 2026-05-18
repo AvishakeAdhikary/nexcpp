@@ -1,0 +1,82 @@
+[project]
+name = "nexcpp"
+version = "0.1.0"
+description = "MCP server giving AI agents deep C++ tooling intelligence: docs, build, scaffold, sandbox, GitHub."
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{ name = "nexcpp contributors" }]
+license = { text = "MIT" }
+keywords = ["mcp", "cpp", "c++", "tooling", "ai", "agent"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: C++",
+]
+dependencies = [
+    "mcp[cli]>=1.2.0",
+    "pydantic>=2.6",
+    "beautifulsoup4>=4.12",
+    "lxml>=5.0",
+    "rank-bm25>=0.2.2",
+    "jinja2>=3.1",
+    "tomli>=2.0; python_version<'3.11'",
+    "rich>=13.7",
+    "click>=8.1",
+    "pyyaml>=6.0",
+    "docker>=7.0",
+    "gitpython>=3.1",
+    "pygithub>=2.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=4.1",
+    "ruff>=0.4",
+    "mypy>=1.10",
+]
+
+[project.scripts]
+nexcpp = "server:main"
+nexcpp-fetch = "doc_index.fetch:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = [
+    "tools",
+    "resources",
+    "prompts",
+    "doc_index",
+    "sandbox",
+    "sdk",
+    "plugins",
+]
+include = ["server.py", "config.py"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM", "RUF"]
+ignore = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B", "SIM"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+addopts = "-ra --strict-markers"

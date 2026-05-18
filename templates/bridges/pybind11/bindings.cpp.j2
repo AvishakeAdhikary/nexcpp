@@ -1,0 +1,21 @@
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
+#include "{{ header_basename }}"
+
+namespace py = pybind11;
+
+PYBIND11_MODULE({{ module_name }}, m) {
+    m.doc() = "pybind11 bindings for {{ header_basename }}";
+
+{% for fn in functions %}
+    m.def("{{ fn.name }}", &{{ fn.name }}{% if fn.doc %}, "{{ fn.doc }}"{% endif %});
+{% endfor %}
+
+{% for cls in classes %}
+    py::class_<{{ cls.name }}>(m, "{{ cls.name }}")
+        .def(py::init<>())
+{% for method in cls.methods %}        .def("{{ method.name }}", &{{ cls.name }}::{{ method.name }})
+{% endfor %}        ;
+{% endfor %}
+}

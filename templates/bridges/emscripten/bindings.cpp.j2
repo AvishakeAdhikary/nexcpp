@@ -1,0 +1,18 @@
+#include <emscripten/bind.h>
+
+#include "{{ header_basename }}"
+
+using namespace emscripten;
+
+EMSCRIPTEN_BINDINGS({{ module_name }}) {
+{% for fn in functions %}
+    function("{{ fn.name }}", &{{ fn.name }});
+{% endfor %}
+
+{% for cls in classes %}
+    class_<{{ cls.name }}>("{{ cls.name }}")
+        .constructor<>()
+{% for method in cls.methods %}        .function("{{ method.name }}", &{{ cls.name }}::{{ method.name }})
+{% endfor %}        ;
+{% endfor %}
+}

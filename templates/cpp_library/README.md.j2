@@ -1,0 +1,54 @@
+# {{ name }}
+
+{{ description }}
+
+## Build
+
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build -j
+ctest --test-dir build --output-on-failure
+```
+
+## Install
+
+```bash
+cmake --install build --prefix /your/prefix
+```
+
+## Use from CMake
+
+```cmake
+find_package({{ name }} CONFIG REQUIRED)
+target_link_libraries(your_target PRIVATE {{ name }}::{{ name }})
+```
+
+## Package managers
+
+{% if 'vcpkg' in package_managers %}
+### vcpkg
+
+A `vcpkg.json` manifest is included. From a vcpkg-bootstrapped checkout:
+
+```bash
+vcpkg install --x-manifest-root=.
+```
+{% endif %}
+{% if 'conan' in package_managers %}
+### Conan
+
+```bash
+conan create . --build=missing
+```
+{% endif %}
+{% if 'cpm' in package_managers %}
+### CPM.cmake
+
+```cmake
+CPMAddPackage("gh:owner/{{ name }}@0.1.0")
+```
+{% endif %}
+
+## License
+
+MIT

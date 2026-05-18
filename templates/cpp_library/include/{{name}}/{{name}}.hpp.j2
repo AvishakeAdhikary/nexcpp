@@ -1,0 +1,15 @@
+#pragma once
+
+#include <string>
+#include <string_view>
+
+/// {{ description }}
+namespace {{ namespace }} {
+
+/// Library version string (matches CMake PROJECT_VERSION).
+[[nodiscard]] std::string version();
+
+/// Return a greeting for ``who`` — placeholder API.
+[[nodiscard]] std::string greet(std::string_view who);
+
+}  // namespace {{ namespace }}

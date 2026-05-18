@@ -1,0 +1,20 @@
+from pybind11.setup_helpers import Pybind11Extension, build_ext
+from setuptools import setup
+
+ext_modules = [
+    Pybind11Extension(
+        "{{ module_name }}",
+        ["bindings.cpp"],
+        cxx_std=20,
+    ),
+]
+
+setup(
+    name="{{ module_name }}",
+    version="0.1.0",
+    description="pybind11 bindings for {{ header_basename }}",
+    ext_modules=ext_modules,
+    cmdclass={"build_ext": build_ext},
+    zip_safe=False,
+    python_requires=">=3.9",
+)

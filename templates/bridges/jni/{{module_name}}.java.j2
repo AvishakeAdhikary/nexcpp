@@ -1,0 +1,21 @@
+package {{ java_package }};
+
+public class {{ module_name | capitalize }} {
+    static {
+        System.loadLibrary("{{ module_name }}");
+    }
+
+{% for fn in functions %}
+{% set ret = fn.return_type | trim %}
+{% if ret == "int" or ret == "int32_t" %}{% set jret = "int" %}
+{% elif ret == "long" or ret == "int64_t" or ret == "long long" %}{% set jret = "long" %}
+{% elif ret == "double" %}{% set jret = "double" %}
+{% elif ret == "float" %}{% set jret = "float" %}
+{% elif ret == "bool" %}{% set jret = "boolean" %}
+{% elif ret == "void" %}{% set jret = "void" %}
+{% elif ret == "const char*" or ret == "const char *" or ret == "char const*" or ret == "char const *" %}{% set jret = "String" %}
+{% else %}{% set jret = "Object" %}
+{% endif %}
+    public static native {{ jret }} {{ fn.name }}({% for p in fn.params %}{% if not loop.first %}, {% endif %}{% set pt = p.type | trim %}{% if pt == "int" or pt == "int32_t" %}int{% elif pt == "long" or pt == "int64_t" or pt == "long long" %}long{% elif pt == "double" %}double{% elif pt == "float" %}float{% elif pt == "bool" %}boolean{% elif pt == "const char*" or pt == "const char *" or pt == "char const*" or pt == "char const *" %}String{% else %}Object{% endif %} {{ p.name }}{% endfor %});
+{% endfor %}
+}

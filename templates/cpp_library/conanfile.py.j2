@@ -1,0 +1,44 @@
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+from conan.tools.files import copy
+
+
+class {{ namespace.split('::')[-1].capitalize() }}Conan(ConanFile):
+    name = "{{ name | replace('_', '-') }}"
+    version = "0.1.0"
+    license = "MIT"
+    description = "{{ description }}"
+    settings = "os", "compiler", "build_type", "arch"
+    options = {"shared": [True, False], "fPIC": [True, False]}
+    default_options = {"shared": {{ 'True' if kind == 'shared' else 'False' }}, "fPIC": True}
+    exports_sources = "CMakeLists.txt", "include/*", "src/*", "cmake/*"
+
+    def config_options(self):
+        if self.settings.os == "Windows":
+            self.options.rm_safe("fPIC")
+
+    def requirements(self):
+{% for d in dependencies %}        self.requires("{{ d }}/[*]")
+{% endfor %}        pass
+
+    def layout(self):
+        cmake_layout(self)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.variables["{{ name | upper }}_BUILD_TESTS"] = "OFF"
+        tc.generate()
+
+    def build(self):
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
+
+    def package(self):
+        cmake = CMake(self)
+        cmake.install()
+        copy(self, "LICENSE*", self.source_folder, self.package_folder)
+
+    def package_info(self):
+        self.cpp_info.libs = ["{{ name }}"]
+        self.cpp_info.set_property("cmake_target_name", "{{ name }}::{{ name }}")

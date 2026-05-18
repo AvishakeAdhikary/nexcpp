@@ -1,0 +1,8 @@
+#include <gtest/gtest.h>
+
+#include "{{ name }}/{{ name }}.hpp"
+
+TEST({{ name }}Test, GreetIncludesWho) {
+    const auto greeting = {{ namespace }}::greet("world");
+    EXPECT_NE(greeting.find("world"), std::string::npos);
+}

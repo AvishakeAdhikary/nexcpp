@@ -1,0 +1,12 @@
+cmake_minimum_required(VERSION 3.20)
+project({{ module_name }} LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+add_executable({{ module_name }} bindings.cpp)
+
+set_target_properties({{ module_name }} PROPERTIES
+    LINK_FLAGS "-s WASM=1 -s MODULARIZE=1 -s EXPORT_NAME='{{ module_name }}' --bind"
+    SUFFIX ".js"
+)

@@ -1,0 +1,26 @@
+# {{ name }}
+
+{{ description }}
+
+Header-only C++{{ cpp_std }} library.
+
+## Use
+
+```cpp
+#include <{{ name }}/{{ name }}.hpp>
+
+int main() {
+    return {{ namespace }}::version().empty() ? 1 : 0;
+}
+```
+
+## CMake
+
+```cmake
+find_package({{ name }} CONFIG REQUIRED)
+target_link_libraries(your_target PRIVATE {{ name }}::{{ name }})
+```
+
+## License
+
+MIT

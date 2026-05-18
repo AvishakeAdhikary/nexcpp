@@ -1,0 +1,322 @@
+---
+name: cpp-rust-bridge
+description: "Author a C++ ↔ Rust interop layer using the cxx crate: setup Cargo + CMake integration, write safe bridge declarations, and ship a hybrid library. Use when the user wants to call C++ from Rust, call Rust from C++, integrate a Rust crate into a C++ codebase, or build a hybrid C++/Rust project."
+---
+
+# C++ ↔ Rust Bridge (cxx)
+
+This skill covers safe, idiomatic interop between C++ and Rust using
+the `cxx` crate. It assumes you understand both languages; the goal is
+to get the build wiring and FFI surface right.
+
+## When to use
+
+- "Call this Rust function from C++"
+- "Expose this C++ class to Rust"
+- "Add a Rust core to my C++ project"
+- "Set up cxx in my Cargo workspace + CMake project"
+- "Generate cxx bridge declarations from my header"
+- "Why is my cxx build failing?"
+
+## When NOT to use
+
+- C++ ↔ Python (`cpp-python-bridge`)
+- Pure Rust projects (no C++)
+- Raw `extern "C"` FFI without cxx — for that, prefer cxx anyway
+  unless the user has a specific reason not to
+
+## Mental model — cxx in one paragraph
+
+cxx generates **safe** bindings in both directions from a Rust module
+called the **bridge**. You declare types and functions you want shared
+in a `#[cxx::bridge] mod ffi { ... }` block; cxx produces the C++ header
+and the Rust foreign function declarations, and ensures the calling
+conventions and types match at compile time.
+
+You CANNOT use arbitrary C++ types directly. cxx supports a closed set:
+`String`, `&str`, `CxxString`, primitives, `UniquePtr<T>`, `SharedPtr<T>`,
+`Box<T>`, `Pin<&mut T>`, opaque types, and slices.
+
+## Step 1 — Layout the project
+
+A typical hybrid project:
+
+```
+myproj/
+    Cargo.toml          # workspace
+    CMakeLists.txt      # top-level
+    cpp/
+        CMakeLists.txt
+        include/myproj/api.hpp
+        src/api.cpp
+    rust/
+        Cargo.toml      # the bridge crate
+        build.rs
+        src/lib.rs      # the bridge module
+```
+
+## Step 2 — Generate the bridge
+
+```yaml
+tool: generate_bridge
+args:
+  language: "rust"
+  header: "cpp/include/myproj/api.hpp"
+  module_name: "ffi"
+  output_dir: "rust"
+```
+
+The generator produces:
+
+- `rust/Cargo.toml`
+- `rust/build.rs`
+- `rust/src/lib.rs` with a `#[cxx::bridge]` skeleton
+
+## Step 3 — Inspect the bridge
+
+```rust
+// rust/src/lib.rs
+#[cxx::bridge(namespace = "myproj")]
+mod ffi {
+    // Shared types (auto-generated structs in both languages)
+    struct Point {
+        x: f64,
+        y: f64,
+    }
+
+    // Opaque C++ types — Rust knows only the name, manipulates via UniquePtr
+    unsafe extern "C++" {
+        include!("myproj/api.hpp");
+        type Foo;
+        fn make_foo(initial: i32) -> UniquePtr<Foo>;
+        fn compute(self: &Foo) -> i32;
+    }
+
+    // Functions Rust exports to C++
+    extern "Rust" {
+        fn rust_hello(name: &str) -> String;
+    }
+}
+
+fn rust_hello(name: &str) -> String {
+    format!("Hello from Rust, {}!", name)
+}
+```
+
+Key syntax:
+
+- `unsafe extern "C++"` — declarations of C++ types/functions. Marked
+  unsafe because Rust can't verify the C++ side.
+- `extern "Rust"` — declarations of Rust types/functions visible to C++.
+- `UniquePtr<T>` ≈ `std::unique_ptr<T>`. Use it for any owned C++ object.
+- `&self` / `&mut self` for member functions; `self: Pin<&mut Foo>` for
+  C++ methods that mutate.
+
+## Step 4 — `build.rs` (Rust → emit C++ glue)
+
+```rust
+fn main() {
+    cxx_build::bridge("src/lib.rs")
+        .file("../cpp/src/api.cpp")
+        .std("c++20")
+        .compile("myproj-ffi");
+
+    println!("cargo:rerun-if-changed=src/lib.rs");
+    println!("cargo:rerun-if-changed=../cpp/src/api.cpp");
+    println!("cargo:rerun-if-changed=../cpp/include/myproj/api.hpp");
+}
+```
+
+This generates `target/cxxbridge/*` headers and links everything into a
+single static library.
+
+## Step 5 — Cargo.toml (rust/)
+
+```toml
+[package]
+name = "myproj-ffi"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["staticlib", "rlib"]
+
+[dependencies]
+cxx = "1.0"
+
+[build-dependencies]
+cxx-build = "1.0"
+```
+
+## Step 6 — Top-level CMakeLists (CMake → drive Cargo)
+
+```cmake
+cmake_minimum_required(VERSION 3.20)
+project(myproj LANGUAGES CXX)
+
+# Build the Rust side as a static library via Cargo
+include(FetchContent)
+FetchContent_Declare(
+    Corrosion
+    GIT_REPOSITORY https://github.com/corrosion-rs/corrosion.git
+    GIT_TAG v0.5
+)
+FetchContent_MakeAvailable(Corrosion)
+
+corrosion_import_crate(MANIFEST_PATH rust/Cargo.toml)
+
+add_executable(myproj cpp/src/main.cpp)
+target_link_libraries(myproj PRIVATE myproj-ffi)
+target_include_directories(myproj PRIVATE
+    ${CMAKE_BINARY_DIR}/cargo/build/cxxbridge
+)
+target_compile_features(myproj PRIVATE cxx_std_20)
+```
+
+[Corrosion](https://github.com/corrosion-rs/corrosion) is the standard
+way to wire Cargo crates into CMake. It handles cross-target builds,
+release vs debug, and proper dependency tracking.
+
+## Step 7 — Use the bridge from C++
+
+```cpp
+// cpp/src/main.cpp
+#include "myproj/lib.rs.h"   // generated by cxx-build
+#include <iostream>
+
+int main() {
+    rust::String greeting = rust_hello("World");
+    std::cout << std::string(greeting) << "\n";
+
+    auto foo = myproj::make_foo(42);
+    std::cout << foo->compute() << "\n";
+}
+```
+
+## Step 8 — Use C++ from Rust
+
+```rust
+fn main() {
+    let foo = myproj_ffi::ffi::make_foo(42);
+    let result = foo.compute();
+    println!("compute = {}", result);
+}
+```
+
+## Type conversion cheat sheet
+
+| Rust                    | C++                                  |
+|-------------------------|--------------------------------------|
+| `String`                | `rust::String`                       |
+| `&str`                  | `rust::Str`                          |
+| `Vec<T>`                | `rust::Vec<T>`                       |
+| `Box<T>`                | `rust::Box<T>`                       |
+| `&[T]` / `&mut [T]`     | `rust::Slice<T>` / `rust::Slice<T>`  |
+| `UniquePtr<T>`          | `std::unique_ptr<T>`                 |
+| `SharedPtr<T>`          | `std::shared_ptr<T>`                 |
+| `CxxString`             | `std::string`                        |
+| `CxxVector<T>`          | `std::vector<T>`                     |
+| `Pin<&mut Foo>`         | `Foo&` (with caveats)                |
+| `i32` / `i64` / `f32`   | `int32_t` / `int64_t` / `float`      |
+
+## Safety patterns
+
+### Use opaque types for non-trivial C++
+
+If the C++ type has non-trivial lifetime semantics, declare it opaque on
+the Rust side and handle it only via `UniquePtr` or `Pin<&mut>`:
+
+```rust
+unsafe extern "C++" {
+    type ComplexCpp;     // opaque
+    fn make_complex() -> UniquePtr<ComplexCpp>;
+    fn mutate(self: Pin<&mut ComplexCpp>);
+}
+```
+
+Rust will not let you move-out, copy, or sizeof this type, which
+prevents most lifetime bugs.
+
+### Don't share `&mut` Rust references across the boundary
+
+Pass owned values (`String`, `Vec<T>`) or shared immutable references
+(`&str`, `&[T]`). Mutable references across FFI are very easy to get
+wrong because C++ doesn't respect Rust's aliasing rules.
+
+### Wrap raw pointers immediately
+
+If you must accept a raw `*mut T` (you almost never should with cxx),
+wrap it in a Rust newtype that owns it and runs `Drop`.
+
+### Error handling
+
+cxx maps `Result<T, E>` (where E: Display) to a C++ `cxx::Exception`. On
+the C++ side, calling a Rust function that returns `Result` throws.
+Catch with a try/catch block.
+
+```rust
+extern "Rust" {
+    fn parse_int(s: &str) -> Result<i32>;
+}
+
+fn parse_int(s: &str) -> anyhow::Result<i32> {
+    Ok(s.parse()?)
+}
+```
+
+```cpp
+try {
+    int n = parse_int("42");
+} catch (const rust::Error& e) {
+    std::cerr << "parse failed: " << e.what() << "\n";
+}
+```
+
+## Build verification
+
+```yaml
+tool: build_project
+args:
+  project_dir: "."
+  build_type: "Debug"
+  run_tests: true
+```
+
+The output should include both the Rust build steps and the C++ steps.
+If you see "cargo: command not found", install Rust via rustup or use
+the docker sandbox (`docker-cpp-dev`).
+
+## Debugging
+
+### `error[E0277]: the trait bound `MyType: ExternType` is not satisfied`
+
+You declared a `struct` in the bridge that contains a non-FFI-safe type.
+Either pick a different field type or make MyType opaque.
+
+### `undefined reference to 'cxxbridge1$rust_hello'`
+
+The bridge header isn't included or the static library isn't linked.
+Check `target_include_directories` and `target_link_libraries`.
+
+### Build works but linking fails with multiple definition
+
+`build.rs` is also compiling a `.cpp` file that CMake compiles. Pick
+one place to compile each TU.
+
+### `error: panicked at 'expected initialized cxx::CxxString'`
+
+You're passing an uninitialized `CxxString` from Rust. Use `let_cxx_string!`
+or `CxxString::new()` before pass-by-reference.
+
+## Tool reference quick card
+
+- `generate_bridge(language="rust", header, module_name)` — scaffold
+- `manage_file(op=read|write|patch)` — edit lib.rs, build.rs
+- `build_project(...)` — verify hybrid build
+- `analyze_code(path="cpp/", tool="clang-tidy")` — lint the C++ side
+
+## References
+
+- cxx documentation: https://cxx.rs/
+- corrosion (Cargo ↔ CMake): https://corrosion-rs.github.io/corrosion/
+- cxx-build crate: https://docs.rs/cxx-build/

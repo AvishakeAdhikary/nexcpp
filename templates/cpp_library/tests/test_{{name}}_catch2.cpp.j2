@@ -1,0 +1,12 @@
+#include <catch2/catch_test_macros.hpp>
+
+#include "{{ name }}/{{ name }}.hpp"
+
+TEST_CASE("{{ name }} version is non-empty", "[{{ name }}]") {
+    REQUIRE_FALSE({{ namespace }}::version().empty());
+}
+
+TEST_CASE("{{ name }} greet includes who", "[{{ name }}]") {
+    const auto greeting = {{ namespace }}::greet("world");
+    REQUIRE(greeting.find("world") != std::string::npos);
+}

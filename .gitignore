@@ -1,0 +1,95 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+ENV/
+*.egg
+*.egg-info/
+dist/
+build/
+wheels/
+pip-wheel-metadata/
+
+# Testing / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+
+# Profiling
+*.prof
+*.lprof
+profile.out
+
+# Type / lint caches
+.mypy_cache/
+.ruff_cache/
+.pytype/
+.pyre/
+
+# Editor / IDE
+.idea/
+.vscode/
+.vs/
+.fleet/
+.zed/
+*.swp
+*.swo
+
+# OS — macOS
+.DS_Store
+._*
+.AppleDouble
+.LSOverride
+Icon?
+
+# OS — Linux
+*~
+.directory
+.Trash-*
+
+# OS — Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# uv / pip
+uv.lock.tmp
+pip-log.txt
+pip-delete-this-directory.txt
+
+# nexcpp specific
+docs_mirror/*
+!docs_mirror/.gitkeep
+.nexcpp/state/
+.nexcpp/cache/
+.nexcpp/logs/
+nexcpp-sandbox-*/
+
+# Generated docs
+docs/_build/
+site/
+
+# Build artifacts (C++)
+*.o
+*.obj
+*.exe
+*.dll
+*.dylib
+*.a
+*.lib
+*.gcda
+*.gcno
+*.pdb
+build-*/
+cmake-build-*/

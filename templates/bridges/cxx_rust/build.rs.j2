@@ -1,0 +1,10 @@
+fn main() {
+    cxx_build::bridge("src/bridge.rs")
+        .file("src/shim.cpp")
+        .flag_if_supported("-std=c++20")
+        .compile("{{ module_name }}");
+
+    println!("cargo:rerun-if-changed=src/bridge.rs");
+    println!("cargo:rerun-if-changed=src/shim.cpp");
+    println!("cargo:rerun-if-changed={{ header_basename }}");
+}

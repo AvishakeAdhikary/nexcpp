@@ -1,0 +1,16 @@
+#ifndef {{ module_name | upper }}_WRAPPER_H
+#define {{ module_name | upper }}_WRAPPER_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+{% for fn in functions %}
+void {{ fn.name }}_wrapper(void);
+{% endfor %}
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

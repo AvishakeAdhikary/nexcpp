@@ -1,0 +1,26 @@
+# nexcpp project configuration
+# This file is loaded automatically when nexcpp is launched from this directory.
+# Global defaults live at ~/.nexcpp/config.toml and are merged underneath.
+
+[nexcpp]
+# Where the offline documentation index is stored / read from.
+# Run `nexcpp-fetch all` to populate it.
+docs_mirror_path = "docs_mirror"
+
+# Path to a local vcpkg checkout. If unset, the env var VCPKG_ROOT is used.
+# vcpkg_root = "/opt/vcpkg"
+
+# GitHub Personal Access Token used by the github_op tool.
+# Prefer the env var NEXCPP_GITHUB_TOKEN over committing this.
+# github_token = ""
+
+# Default value of the `sandbox` flag on build_project / run_snippet.
+sandbox_default = false
+
+# Absolute paths outside the current working directory that manage_file is
+# allowed to touch. Empty list = strict (cwd-only).
+file_allowlist = []
+
+# Plugin module names to load eagerly (in addition to scope-based discovery
+# from ./.nexcpp/plugins/ and ~/.nexcpp/plugins/).
+plugins = []

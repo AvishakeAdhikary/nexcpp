@@ -1,0 +1,31 @@
+from conan import ConanFile
+from conan.tools.cmake import CMake, CMakeToolchain, cmake_layout
+
+
+class {{ namespace.split('::')[-1].capitalize() }}Conan(ConanFile):
+    name = "{{ name | replace('_', '-') }}"
+    version = "0.1.0"
+    license = "MIT"
+    description = "{{ description }}"
+    settings = "os", "compiler", "build_type", "arch"
+    exports_sources = "CMakeLists.txt", "src/*"
+
+    def requirements(self):
+{% for d in dependencies %}        self.requires("{{ d }}/[*]")
+{% endfor %}        pass
+
+    def layout(self):
+        cmake_layout(self)
+
+    def generate(self):
+        tc = CMakeToolchain(self)
+        tc.generate()
+
+    def build(self):
+        cmake = CMake(self)
+        cmake.configure()
+        cmake.build()
+
+    def package(self):
+        cmake = CMake(self)
+        cmake.install()

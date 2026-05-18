@@ -1,0 +1,69 @@
+cmake_minimum_required(VERSION 3.20)
+
+project({{ name }}
+    VERSION 0.1.0
+    DESCRIPTION "{{ description }}"
+    LANGUAGES CXX)
+
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
+
+option({{ name | upper }}_BUILD_TESTS "Build {{ name }} tests" ON)
+option({{ name | upper }}_INSTALL "Generate install rules for {{ name }}" ON)
+
+{% for dep in dependencies %}
+find_package({{ dep }} CONFIG QUIET)
+{% endfor %}
+
+add_library({{ name }} INTERFACE)
+add_library({{ name }}::{{ name }} ALIAS {{ name }})
+
+target_include_directories({{ name }} INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+target_compile_features({{ name }} INTERFACE cxx_std_{{ cpp_std }})
+
+{% for dep in dependencies %}
+if(TARGET {{ dep }}::{{ dep }})
+    target_link_libraries({{ name }} INTERFACE {{ dep }}::{{ dep }})
+endif()
+{% endfor %}
+
+{% if test_framework != 'none' %}
+if({{ name | upper }}_BUILD_TESTS AND PROJECT_IS_TOP_LEVEL)
+    enable_testing()
+    add_subdirectory(tests)
+endif()
+{% endif %}
+
+if({{ name | upper }}_INSTALL)
+    install(TARGETS {{ name }}
+        EXPORT {{ name }}Targets
+    )
+    install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
+    install(EXPORT {{ name }}Targets
+        FILE {{ name }}Targets.cmake
+        NAMESPACE {{ name }}::
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/{{ name }}
+    )
+
+    configure_package_config_file(
+        ${CMAKE_CURRENT_SOURCE_DIR}/cmake/{{ name }}Config.cmake.in
+        ${CMAKE_CURRENT_BINARY_DIR}/{{ name }}Config.cmake
+        INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/{{ name }}
+    )
+    write_basic_package_version_file(
+        ${CMAKE_CURRENT_BINARY_DIR}/{{ name }}ConfigVersion.cmake
+        VERSION ${PROJECT_VERSION}
+        COMPATIBILITY SameMajorVersion
+        ARCH_INDEPENDENT
+    )
+    install(FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/{{ name }}Config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/{{ name }}ConfigVersion.cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/{{ name }}
+    )
+endif()

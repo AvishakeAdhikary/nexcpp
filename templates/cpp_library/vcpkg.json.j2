@@ -1,0 +1,15 @@
+{
+    "name": "{{ name | replace('_', '-') }}",
+    "version": "0.1.0",
+    "description": "{{ description }}",
+    "homepage": "",
+    "license": "MIT",
+    "dependencies": [
+{% for d in dependencies %}        "{{ d }}"{% if not loop.last %},{% endif %}
+{% endfor %}    ],
+    "features": {
+        "tests": {
+            "description": "Build {{ name }} tests"
+        }
+    }
+}

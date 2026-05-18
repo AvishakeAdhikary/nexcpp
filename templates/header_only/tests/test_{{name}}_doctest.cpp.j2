@@ -1,0 +1,9 @@
+#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
+#include <doctest/doctest.h>
+
+#include "{{ name }}/{{ name }}.hpp"
+
+TEST_CASE("{{ name }} greet includes who") {
+    const auto greeting = {{ namespace }}::greet("world");
+    CHECK(greeting.find("world") != std::string::npos);
+}

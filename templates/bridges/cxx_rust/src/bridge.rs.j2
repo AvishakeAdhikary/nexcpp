@@ -1,0 +1,17 @@
+// cxx FFI bridge for {{ header_basename }}.
+#[cxx::bridge]
+mod ffi {
+    unsafe extern "C++" {
+        include!("{{ header_basename }}");
+
+{% for fn in functions %}
+        fn {{ fn.name }}({% for p in fn.params %}{{ p.name }}: {{ p.rust_type | default('i32') }}{% if not loop.last %}, {% endif %}{% endfor %}) -> {{ fn.rust_return | default('i32') }};
+{% endfor %}
+
+{% for cls in classes %}
+        type {{ cls.name }};
+{% endfor %}
+    }
+}
+
+pub use ffi::*;
